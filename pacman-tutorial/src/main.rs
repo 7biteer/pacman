@@ -1,3 +1,6 @@
+mod board;
+mod game;
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 struct Position {
     x: i32,
@@ -74,11 +77,11 @@ fn main() {
 
     let mut player = Player::new(String::from("Pac-Man"), Position { x: 4, y: 3 });
 
-    let player_name = player.name();
+    let player_name  = player.name.as_str();
 
+    player.position = player.position.moved(Direction::Right);
+    
     println!("{player_name}");
-
-    player.move_in(Direction::Right);
 }
 
 #[cfg(test)]
@@ -139,10 +142,7 @@ mod tests_02 {
         let player = Player::new(String::from("Pac-Man"), Position { x: 4, y: 3 });
         let player_name: &str = player.name();
         assert_eq!(player_name, "Pac-Man");
-        assert_eq!(
-            player.position(),
-            Position { x: 4, y: 3 }
-        );
+        assert_eq!(player.position(), Position { x: 4, y: 3 });
     }
 
     #[test]
@@ -153,5 +153,14 @@ mod tests_02 {
         player.move_in(Direction::Down);
         player.move_in(Direction::Left);
         assert_eq!(player.position(), Position { x: 5, y: 4 });
+    }
+
+    #[test]
+    fn player_can_move_after_name_borrow_ends() {
+        let mut player = Player::new(String::from("Pac-Man"), Position { x: 4, y: 3 });
+        let player_name: &str = player.name();
+        assert_eq!(player_name, "Pac-Man");
+        player.move_in(Direction::Up);
+        assert_eq!(player.position(), Position { x: 4, y: 2 });
     }
 }
