@@ -1,7 +1,7 @@
 use crate::Position;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum Tile {
+pub(create) enum Tile {
     Wall,
     Empty,
     Pellet,

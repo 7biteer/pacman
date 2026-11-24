@@ -1,5 +1,6 @@
 mod board;
 mod game;
+mod terminal;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 struct Position {
