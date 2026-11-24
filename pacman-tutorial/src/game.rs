@@ -24,7 +24,27 @@ impl GameState {
     }
 
     fn step(&mut self, direction: Direction) -> MoveOutcome {
-        todo!("Implement movement and collision rules")
+        let current = self.player.position();
+        let next = current.moved(direction);
+
+        let tile = self.board.tile_at(next).copied();
+
+        match tile {
+            Some(Tile::Wall) | None => MoveOutcome::Blocked,
+            Some(Tile::Empty) => {
+                self.player.move_in(direction);
+                MoveOutcome::Moved
+            }
+            Some(Tile::Pellet) => {
+                if self.board.collect_pellet(next) {
+                    self.player.move_in(direction);
+                    self.score += 10;
+                    MoveOutcome::CollectedPellet
+                } else {
+                    MoveOutcome::CollectedPellet
+                }
+            }
+        }
     }
 
     fn score(&self) -> u32 {
@@ -92,6 +112,48 @@ mod tests {
 
         assert_eq!(outcome, MoveOutcome::Moved);
         assert_eq!(game.player_position(), Position { x: 1, y: 2 });
+        assert_eq!(game.score(), 0);
+    }
+
+    #[test]
+    fn pellet_can_only_be_collected_once() {
+        let mut game = example_game();
+
+        let first = game.step(Direction::Right);
+
+        assert_eq!(first, MoveOutcome::CollectedPellet);
+
+        assert_eq!(game.score(), 10);
+
+        game.step(Direction::Left);
+
+        let second = game.step(Direction::Right);
+
+        assert_eq!(second, MoveOutcome::Moved);
+        assert_eq!(game.score(), 10);
+    }
+
+    #[test]
+    fn player_cannot_move_outside_board() {
+        let board = Board::new(vec![
+            vec![Tile::Empty, Tile::Empty],
+            vec![Tile::Empty, Tile::Empty],
+        ]);
+    
+        let player = Player::new(
+            String::from("Pac-Man"),
+            Position { x: 0, y: 0 },
+        );
+    
+        let mut game = GameState::new(player, board);
+    
+        let result = game.step(Direction::Left);
+    
+        assert_eq!(result, MoveOutcome::Blocked);
+        assert_eq!(
+            game.player_position(),
+            Position { x: 0, y: 0 }
+        );
         assert_eq!(game.score(), 0);
     }
 }

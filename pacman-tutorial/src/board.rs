@@ -30,7 +30,7 @@ impl Board {
         self.rows.get_mut(y)?.get_mut(x)
     }
 
-    fn collect_pellet(&mut self, position: Position) -> bool {
+    pub(crate) fn collect_pellet(&mut self, position: Position) -> bool {
         match self.tile_at_mut(position) {
             Some(tile) if *tile == Tile::Pellet => {
                 *tile = Tile::Empty;
